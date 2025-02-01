@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Generator</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff7f50, #ffd700);
+            margin: 0;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-wrapper {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 90%;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            border: 5px solid #ff7f50;
+        }
+
+        .video-box {
+            width: 350px;
+            background: #2f3542;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 20px;
+            border: 5px solid #ffd700;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        .video-box::after {
+            content: '🍳';
+            position: absolute;
+            top: -25px;
+            right: -25px;
+            font-size: 40px;
+            background: #ff7f50;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .video-box::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #ff7f50, #ffd700);
+            z-index: -1;
+            border-radius: 25px;
+            filter: blur(15px);
+            opacity: 0.7;
+        }
+
+        .video-container {
+            width: 100%;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            position: relative;
+            padding-top: 56.25%;
+            border: 4px solid #ffa500;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-title {
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding: 15px;
+            font-size: 1.4em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: #ff7f50;
+            border-radius: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .chef-container {
+            position: absolute;
+            top: -70px;
+            right: -70px;
+            width: 170px;
+            height: 170px;
+            background: #ffa500;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: rotate(15deg);
+            border: 5px solid #ffd700;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .chef-image {
+            width: 140px;
+            height: 140px;
+            background: url('/api/placeholder/140/140') center/cover;
+            border-radius: 50%;
+            border: 4px solid white;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2f3542;
+            font-size: 2.8em;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(45deg, #ff7f50, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .category-select,
+        .generate-button,
+        .speak-button,
+        .download-button,
+        .custom-prompt {
+            width: 100%;
+            padding: 20px;
+            margin: 10px 0;
+            border: 4px solid #ff7f50;
+            border-radius: 15px;
+            box-sizing: border-box;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-select:focus,
+        .custom-prompt:focus {
+            border-color: #ffd700;
+            outline: none;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .custom-prompt {
+            display: none;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .recipe-display {
+            margin: 20px 0;
+            padding: 25px;
+            background: linear-gradient(45deg, #ff7f50, #ffa500);
+            border: none;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            color: white;
+            box-shadow: 0 10px 25px rgba(255, 127, 80, 0.3);
+            transition: transform 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .recipe-display:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 30px rgba(255, 127, 80, 0.4);
+        }
+
+        .generate-button,
+        .speak-button,
+        .download-button {
+            background: linear-gradient(45deg, #ff7f50, #ffd700);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .speak-button {
+            background: linear-gradient(45deg, #ff7f50, #ffa500);
+            margin-top: 10px;
+        }
+
+        .download-button {
+            background: linear-gradient(45deg, #ff7f50, #ff6b6b);
+            margin-top: 10px;
+        }
+
+        .generate-button:hover,
+        .speak-button:hover,
+        .download-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 127, 80, 0.4);
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .mode-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 15px 25px;
+            background: #f1f2f6;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 3px solid #ff7f50;
+        }
+
+        .mode-toggle label:hover {
+            background: #e2e4ea;
+            transform: translateY(-2px);
+        }
+
+        .mode-toggle input[type="radio"] {
+            width: 22px;
+            height: 22px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) rotate(15deg); }
+            50% { transform: translateY(-15px) rotate(15deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(3deg); }
+            50% { transform: translateY(-15px) rotate(-3deg); }
+        }
+
+        .container:hover .chef-container {
+            animation: bounce 2s infinite;
+        }
+
+        @media (max-width: 1200px) {
+            .page-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .video-box {
+                width: 90%;
+                max-width: 600px;
+                position: relative;
+                margin-top: 50px;
+            }
+
+            body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="container">
+            <div class="chef-container">
+                <div class="chef-image"></div>
+            </div>
+
+            <h1>Recipe Generator</h1>
+
+            <div class="mode-toggle">
+                <label>
+                    <input type="radio" name="mode" value="category" checked>
+                    Categories
+                </label>
+                <label>
+                    <input type="radio" name="mode" value="custom">
+                    Custom
+                </label>
+            </div>
+
+            <div class="input-group">
+                <select id="categorySelect" class="category-select">
+                    <option value="1">Breakfast</option>
+                    <option value="2">Lunch</option>
+                    <option value="3">Dinner</option>
+                    <option value="4">Dessert</option>
+                    <option value="5">Snacks</option>
+                </select>
+
+                <textarea id="customPrompt" class="custom-prompt" 
+                    placeholder="Enter your ingredients here..."></textarea>
+            </div>
+
+            <div class="recipe-display" id="recipeDisplay">
+                Choose a category or enter your ingredients, then click the button to generate a recipe!
+            </div>
+
+            <button class="generate-button" id="generateButton">Generate Recipe</button>
+            <button class="speak-button" id="speakButton" style="display: none;">Read Recipe</button>
+            <button class="download-button" id="downloadButton" style="display: none;">Download Recipe as PDF</button>
+        </div>
+
+        <div class="video-box">
+            <h3 class="video-title">Chef's Special Recipes</h3>
+            <div class="video-container">
+                <img src="D:\uselesss_decrypts\OIP (1).jpeg" alt="Chef's Special Recipes">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modeToggle = document.getElementsByName('mode');
+        const categorySelect = document.getElementById('categorySelect');
+        const customPrompt = document.getElementById('customPrompt');
+        const generateButton = document.getElementById('generateButton');
+        const recipeDisplay = document.getElementById('recipeDisplay');
+        const speakButton = document.getElementById('speakButton');
+        const downloadButton = document.getElementById('downloadButton');
+
+        modeToggle.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'category') {
+                    categorySelect.style.display = 'block';
+                    customPrompt.style.display = 'none';
+                } else {
+                    categorySelect.style.display = 'none';
+                    customPrompt.style.display = 'block';
+                }
+            });
+        });
+
+        generateButton.addEventListener('click', async () => {
+            const isCustomMode = document.querySelector('input[name="mode"]:checked').value === 'custom';
+
+            const payload = isCustomMode
+                ? { customPrompt: customPrompt.value }
+                : { category: categorySelect.value };
+
+            try {
+                const response = await fetch('/generate-recipe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    recipeDisplay.textContent = data.recipe;
+                    speakButton.style.display = 'inline';
+                    downloadButton.style.display = 'inline';
+                } else {
+                    recipeDisplay.textContent = data.error || 'An error occurred while generating the recipe.';
+                    speakButton.style.display = 'none';
+                    downloadButton.style.display = 'none';
+                }
+            } catch (error) {
+                recipeDisplay.textContent = 'Failed to connect to the server. Please try again.';
+                speakButton.style.display = 'none';
+                downloadButton.style.display = 'none';
+            }
+        });
+
+        speakButton.addEventListener('click', () => {
+            const recipeText = recipeDisplay.textContent;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(recipeText);
+                utterance.voice = speechSynthesis.getVoices().find(voice => voice.lang === 'en-US');
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Sorry, your browser does not support text-to-speech.');
+            }
+        });
+
+        downloadButton.addEventListener('click', async () => {
+            const recipeText = recipeDisplay.textContent;
+
+            try {
+                const response = await fetch('/download-recipe-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ recipe: recipeText })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'recipe.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert('Failed to download the PDF. Please try again.');
+                }
+            } catch (error) {
+                alert('Failed to connect to the server. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
