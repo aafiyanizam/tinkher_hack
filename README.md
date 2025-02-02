@@ -90,7 +90,7 @@ For Hardware:
 N/A (Web-based application)
 
 Project Demo
-Video
+https://drive.google.com/file/d/1RkFxeuRT0z3HuKfdfrAj5S2hLGfPkRtl/view?usp=drive_link
 Demo Video Link
 The video demonstrates how to use the Recipe Generator, from selecting a category to generating and downloading a recipe.
 
